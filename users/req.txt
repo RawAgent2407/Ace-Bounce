@@ -1,0 +1,6 @@
+django-jazzmin 
+django
+django-celery-beat 
+celery 
+redis
+xhtml2pdf
