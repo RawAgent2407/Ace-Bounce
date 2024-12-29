@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Advanced Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Add Advanced Booking</h2>
+    <form id="advanced_Normal_BookingForm" method="post" action="{% url 'add_advanced_booking' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="advanced_normal_name">Name</label>
+            <input type="text" class="form-control" id="advanced_normal_name" name="advanced_normal_name" required>
+        </div>
+        <div class="form-group">
+            <label for="advanced_normal_email">Email</label>
+            <input type="advanced_normal_email" class="form-control" id="advanced_normal_email" name="advanced_normal_email" required>
+        </div>
+        <div class="form-group">
+            <label for="advanced_normal_mobile_number">Mobile Number</label>
+            <input type="text" class="form-control" id="advanced_normal_mobile_number" name="advanced_normal_mobile_number" maxlength="10" required>
+        </div>
+        <div class="form-group">
+            <label for="advanced_normal_date">Date</label>
+            <input type="advanced_normal_date" class="form-control" id="advanced_normal_date" name="advanced_normal_date" required>
+        </div>
+        <div class="form-group">
+            <label for="advanced_normal_start_tiime">Start Time</label>
+            <input type="time" class="form-control" id="advanced_normal_start_tiime" name="advanced_normal_start_tiime" required>
+        </div>
+        <div class="form-group">
+            <label for="advanced_normal_slots">Slots</label>
+            <select class="form-control" id="advanced_normal_slots" name="advanced_normal_slots" required>
+                <option value="">Select Slot</option>   
+                {% for slot in slots %}
+                <option value="{{ slot.id }}" data-hours="{{ slot.hours }}">{{ slot }} - {{ slot.amount }} ₹ - {{ slot.hours }} hours</option>          
+                {% endfor %}  
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="advanced_normal_end_time">End Time</label>
+            <input type="time" class="form-control" id="advanced_normal_end_time" name="advanced_normal_end_time" required readonly>
+        </div>
+<!--        <div class="form-group">-->
+<!--            <label for="advanced_normal_payment">Payment Method</label>-->
+<!--            <select class="form-control" id="advanced_normal_payment" name="advanced_normal_payment" required>-->
+<!--                <option value="Cash">Cash</option>-->
+<!--                <option value="UPI">UPI</option>-->
+<!--            </select>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="advanced_normal_discount">Discount</label>-->
+<!--            <input type="number" class="form-control" id="advanced_normal_discount" name="advanced_normal_discount" required>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="advanced_normal_court">Court</label>-->
+<!--            <select class="form-control" id="advanced_normal_court" name="advanced_normal_court" required>-->
+<!--                {% for court in courts %}-->
+<!--                    {% if not court.booked %}-->
+<!--                <option value="{{ court.court_number }}">Court {{ court.court_number }}</option>-->
+<!--                    {% endif %}-->
+<!--                {% endfor %}-->
+<!--            </select>-->
+<!--        </div>-->
+        <input type="hidden" id="manager_id" name="manager_id">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Function to set the current time as the start time
+    function setTimerCurrentTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        $('#advanced_normal_start_tiime').val(`${hours}:${minutes}`);
+        $('#advanced_normal_date').val(`${year}-${month}-${day}`);
+    }
+
+    // Function to update end time based on start time and advanced_normal_slots
+    function updateTimerCurrentTime() {
+        const selectedslots_startTime = $('#advanced_normal_start_tiime').val();
+        const selectedslots_advanced_booking = $('#advanced_normal_slots').find('option:selected');
+        const selectedslots_slotHours = parseInt(selectedslots_advanced_booking.data('hours'), 10);
+
+        if (selectedslots_startTime && !isNaN(selectedslots_slotHours)) {
+            const startTimerDate_advanced = new Date(`1970-01-01T${selectedslots_startTime}:00`);
+            const endTimeDate = new Date(startTimerDate_advanced.getTime() + selectedslots_slotHours * 60 * 60 * 1000);
+            const endTime_advanced = endTimeDate.toTimeString().split(' ')[0].substring(0, 5);
+            $('#advanced_normal_end_time').val(endTime_advanced);
+        } else {
+            $('#advanced_normal_end_time').val('');
+        }
+    }
+
+    // Fetch and set manager ID
+    $.ajax({
+        url: '/manager/get_manager_id/',
+        method: 'GET',
+        success: function(data) {
+            if (data.manager_id) {
+                $('#manager_id').val(data.manager_id);
+            } else {
+                alert('Manager ID not found.');
+            }
+        },
+        error: function() {
+            alert('Error fetching manager ID.');
+        }
+    });
+
+    // Set current time on page load
+    setTimerCurrentTime();
+
+    // Update end time when start time or slot changes
+    $('#advanced_normal_start_tiime, #advanced_normal_slots').on('change', updateTimerCurrentTime);
+
+    // Handle form submission with AJAX
+    $('#advanced_Normal_BookingForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+
+        $.ajax({
+            url: '/manager/add_advanced_booking/',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status === 'occupied') {
+                    alert('This court is already occupied for the selected time.');
+                } else {
+                    window.location.href = '/manager/dashboard/';
+                }
+            },
+            error: function() {
+                alert('Error creating booking.');
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

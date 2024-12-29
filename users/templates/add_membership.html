@@ -1,0 +1,327 @@
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Add Membership</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Add Membership</h2>
+    <form method="post" action="{% url 'add_membership' %}" id="membershipForm">
+        {% csrf_token %}
+        <input type="hidden" id="membership_barcode_id" name="membership_barcode_id">
+        <div class="form-group">
+            <label for="barcode">Barcode</label>
+            <input type="text" class="form-control" id="barcode" name="barcode" value="20240810000" required>
+            <ul id="suggestions" class="list-group"></ul>
+        </div>
+
+        <div class="form-group">
+            <label for="member_name">Name</label>
+            <input type="text" class="form-control" id="member_name" name="member_name" required>
+        </div>
+        <div class="form-group">
+            <label for="mobile_number">Mobile Number</label>
+            <input type="text" class="form-control" id="mobile_number" name="mobile_number" maxlength="10" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email">
+        </div>
+        <div class="form-group">
+            <label for="hours_remaining">Hours Remaining</label>
+            <input type="number" class="form-control" id="hours_remaining" name="hours_remaining" required>
+        </div>
+        <div class="form-group">
+            <label for="plan">Plan</label>
+            <select class="form-control" id="plan" name="plan" required>
+                {% for plan in plans %}
+                <option value="{{ plan.id }}" data-validity="{{ plan.validity_days }}">{{ plan.name }} - {{plan.amount}} ₹ - {{plan.Total_hours}} hours - {{ plan.validity_days }} days</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="expiration_date">Expiration Date</label>
+            <input type="text" class="form-control" id="expiration_date" name="expiration_date" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="payment_method">Payment Method</label>
+            <select class="form-control" id="payment_method" name="payment_method" required>
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select class="form-control" id="status" name="status" required>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <div class="mt-3" id="error"></div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#plan').on('change', function() {
+        var selectedPlan = $(this).find('option:selected');
+        console.log(selectedPlan);
+        var validityDays = selectedPlan.data('validity');
+        var date = new Date();
+        
+        date.setDate(date.getDate() + validityDays);
+        var dd = String(date.getDate()).padStart(2, '0');
+        var mm = String(date.getMonth() + 1).padStart(2, '0');
+        var yyyy = date.getFullYear();
+        validityDays = mm + '/' + dd + '/' + yyyy;
+
+        if (validityDays) {
+            $('#expiration_date').val(validityDays);
+        } else {
+            $('#expiration_date').val('');
+        }
+    });
+
+    $('#plan').trigger('change');
+
+    $('#barcode').on('input', function() {
+        var barcode = $(this).val();
+        if (barcode.length >= 1) {
+            $.ajax({
+                url: '/manager/memberships/search/',
+                method: 'GET',
+                data: { barcode: barcode },
+                success: function(response) {
+                    $('#suggestions').empty();
+                    response.forEach(function(member) {
+                        $('#suggestions').append('<li class="list-group-item suggestion-item" data-barcode="'+member.barcode+'">'+member.member_name+' - '+member.mobile_number+'</li>');
+                    });
+                }
+            });
+        } else {
+            $('#suggestions').empty();
+        }
+    });
+
+    $('#suggestions').on('click', '.suggestion-item', function() {
+        var barcode = $(this).data('barcode');
+        $('#barcode').val(barcode);
+        $('#suggestions').empty();
+        
+        $.ajax({
+            url: '/manager/memberships/get/' + barcode + '/',
+            method: 'GET',
+            success: function(response) {
+                $('#member_name').val(response.member_name);
+                $('#mobile_number').val(response.mobile_number);
+                $('#email').val(response.email);
+                $('#expiration_date').val(response.expiration_date);
+                $('#payment_method').val(response.payment_method);
+                $('#status').val(response.status);
+                $('#membership_barcode_id').val(response.barcode);
+                $('#hours_remaining').val(response.hours_remaining);
+                $('#membershipForm').attr('action', '/manager/memberships/update/' + response.barcode + '/');
+            }
+        });
+    });
+
+    $('#membershipForm').on('submit', function(e) {
+        e.preventDefault();
+        var action = $('#membership_barcode_id').val() ? $(this).attr('action') : '{% url "add_membership" %}';
+        const formData = $(this).serialize();
+
+        $.ajax({
+            url: action,
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                window.location.href = '/manager/view_memberships/';
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = xhr.status + ': ' + xhr.statusText
+                alert('Error - ' + errorMessage);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Membership</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Add Membership</h2>
+    <form method="post" action="{% url 'add_membership' %}" id="uniqueMembershipForm">
+        {% csrf_token %}
+        <input type="hidden" id="uniqueMembershipBarcodeId" name="membership_barcode_id">
+        <div class="form-group">
+            <label for="uniqueBarcode">Barcode</label>
+            <input type="text" class="form-control" id="uniqueBarcode" name="barcode" required>
+            <ul id="uniqueSuggestions" class="list-group"></ul>
+        </div>
+
+        <div class="form-group">
+            <label for="uniqueMemberName">Name</label>
+            <input type="text" class="form-control" id="uniqueMemberName" name="member_name" required>
+        </div>
+        <div class="form-group">
+            <label for="uniqueMobileNumber">Mobile Number</label>
+            <input type="text" class="form-control" id="uniqueMobileNumber" name="mobile_number" maxlength="10" required>
+        </div>
+        <div class="form-group">
+            <label for="uniqueEmail">Email</label>
+            <input type="email" class="form-control" id="uniqueEmail" name="email">
+        </div>
+        <div class="form-group">
+            <label for="uniqueHoursRemaining">
+<!--                {% for plan in plans%}-->
+<!--                    {{plan.Total_hours}} hours-->
+<!--                {% endfor %}-->
+            </label>
+            <input type="number" class="form-control" id="uniqueHoursRemaining" name="hours_remaining" required>
+        </div>
+        <div class="form-group">
+            <label for="uniquePlan">Plan</label>
+            <select class="form-control" id="uniquePlan" name="plan" required>
+                {% for plan in plans %}
+                <option value="{{ plan.id }}" data-validity="{{ plan.validity_days }}">{{ plan.name }} - {{plan.amount}} ₹ - {{plan.Total_hours}} hours - {{ plan.validity_days }} days</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="uniqueExpirationDate">Expiration Date</label>
+            <input type="text" class="form-control" id="uniqueExpirationDate" name="expiration_date" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="uniquePaymentMethod">Payment Method</label>
+            <select class="form-control" id="uniquePaymentMethod" name="payment_method" required>
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="uniqueStatus">Status</label>
+            <select class="form-control" id="uniqueStatus" name="status" required>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <div class="mt-3" id="uniqueError"></div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#uniquePlan').on('change', function() {
+        var selectedPlan = $(this).find('option:selected');
+        var validityDays = selectedPlan.data('validity');
+        var date = new Date();
+        
+        date.setDate(date.getDate() + validityDays);
+        var dd = String(date.getDate()).padStart(2, '0');
+        var mm = String(date.getMonth() + 1).padStart(2, '0');
+        var yyyy = date.getFullYear();
+        validityDays = mm + '/' + dd + '/' + yyyy;
+
+        if (validityDays) {
+            $('#uniqueExpirationDate').val(validityDays);
+        } else {
+            $('#uniqueExpirationDate').val('');
+        }
+    });
+
+    $('#uniquePlan').trigger('change');
+
+    function fetchMemberDetails(barcode) {
+        if (barcode.length >= 1) {
+            $.ajax({
+                url: '/manager/memberships/get/' + barcode + '/',
+                method: 'GET',
+                success: function(response) {
+                    $('#uniqueMemberName').val(response.member_name);
+                    $('#uniqueMobileNumber').val(response.mobile_number);
+                    $('#uniqueEmail').val(response.email);
+                    $('#uniqueExpirationDate').val(response.expiration_date);
+                    $('#uniquePaymentMethod').val(response.payment_method);
+                    $('#uniqueStatus').val(response.status);
+                    $('#uniqueMembershipBarcodeId').val(response.barcode);
+                    $('#uniqueHoursRemaining').val(response.hours_remaining);
+                    $('#uniqueMembershipForm').attr('action', '/manager/memberships/update/' + response.barcode + '/');
+                    $('#uniqueSuggestions').hide(); // Hide the suggestions after filling data
+                },
+                error: function(xhr, status, error) {
+                    $('#uniqueSuggestions').empty();
+                }
+            });
+        }
+    }
+
+    $('#uniqueBarcode').on('input', function() {
+        var barcode = $(this).val();
+        if (barcode.length >= 1) {
+            $.ajax({
+                url: '/manager/memberships/search/',
+                method: 'GET',
+                data: { barcode: barcode },
+                success: function(response) {
+                    $('#uniqueSuggestions').empty().show(); // Show the suggestions when data is being input
+                    response.forEach(function(member) {
+                        $('#uniqueSuggestions').append('<li class="list-group-item uniqueSuggestionItem" data-barcode="'+member.barcode+'">'+member.member_name+' - '+member.mobile_number+'</li>');
+                    });
+                }
+            });
+        } else {
+            $('#uniqueSuggestions').empty();
+        }
+    });
+
+    $('#uniqueBarcode').on('paste', function() {
+        setTimeout(function() {
+            var barcode = $('#uniqueBarcode').val();
+            fetchMemberDetails(barcode);
+        }, 100);
+    });
+
+    $('#uniqueSuggestions').on('click', '.uniqueSuggestionItem', function() {
+        var barcode = $(this).data('barcode');
+        $('#uniqueBarcode').val(barcode);
+        $('#uniqueSuggestions').empty();
+        fetchMemberDetails(barcode);
+    });
+
+    $('#uniqueMembershipForm').on('submit', function(e) {
+        e.preventDefault();
+        var action = $('#uniqueMembershipBarcodeId').val() ? $(this).attr('action') : '{% url "add_membership" %}';
+        const formData = $(this).serialize();
+
+        $.ajax({
+            url: action,
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                window.location.href = '/manager/view_memberships/';
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = xhr.status + ': ' + xhr.statusText;
+                alert('Error - ' + errorMessage);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

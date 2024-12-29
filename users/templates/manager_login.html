@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>LOGIN | ACE BOUNCE</title>
+    <style>
+@import url(https://fonts.googleapis.com/css?family=Anybody:100,200,300,regular,500,600,700,800,900,100italic,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+@import url(https://fonts.googleapis.com/css?family=Nunito:200,300,regular,500,600,700,800,900,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+* {
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+}
+body {
+  font-family: "Nunito", sans-serif;
+  overscroll-behavior: none;
+  overflow: hidden;
+}
+.bg-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0px 10px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ball {
+  position: absolute;
+  /* z-index: -1; */
+  top: 10%;
+  right: -20%;
+  animation: rotate 50s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+    <div class="absolute top-0 left-0 p-4">
+        <!-- <img src="/img/logo.png" alt="Logo" class="h-12 w-12"> -->
+        <h1 class="text-2xl font-bold text-yellow-500 ml-10 mt-7">ACE BOUNCE</h1>
+    </div>
+    <div class="flex items-center justify-center h-screen">
+        <div class="ball">
+            <img src="{% static 'ball.png' %}" alt="Yellow Pickle Ball">
+        </div>
+        <div class="bg-glass p-8 rounded-lg w-96">
+            <h1 class="text-2xl font-bold text-center mb-4 text-yellow-500">Manager</h1>
+            <h2 class="text-xl font-bold text-center text-yellow-500">LOGIN</h2>
+            <form method="POST">
+              {% csrf_token %}
+                <div class="mt-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm text-gray-800" required>
+                </div>
+                <div class="mt-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" name="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm text-gray-800 tracking-widest" required>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="absolute bottom-6 left-6 p-4">
+        <a href="/admin/login/" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Go to Admin Dashboard</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1625 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACE BOUNCE | ADMIN</title>
+    <link rel="shortcut icon" href="/img/logo_1-01.png" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('filter-day').addEventListener('click', function() {
+              filterMemberships('day');
+          });
+      
+          document.getElementById('filter-week').addEventListener('click', function() {
+              filterMemberships('week');
+          });
+      
+          document.getElementById('filter-month').addEventListener('click', function() {
+              filterMemberships('month');
+          });
+      
+          document.getElementById('filter-custom').addEventListener('click', function() {
+              const startDate = document.getElementById('members-start-date').value;
+              const endDate = document.getElementById('members-end-date').value;
+              filterMemberships('custom', startDate, endDate);
+          });
+      
+          function filterMemberships(filterType, startDate = '', endDate = '') {
+              const xhr = new XMLHttpRequest();
+              xhr.open('POST', '/admin/filter_memberships/', true);
+              xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+              xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+              xhr.onreadystatechange = function() {
+                  if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                      const memberships = JSON.parse(xhr.responseText);
+                      updateTable(memberships);
+                  }
+              };
+              const data = { filter: filterType, start_date: startDate, end_date: endDate };
+              xhr.send(JSON.stringify(data));
+          }
+      
+          function updateTable(memberships) {
+              const tbody = document.getElementById('membership-table-body');
+              tbody.innerHTML = '';
+              memberships.forEach(function(membership) {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `<td>${membership.barcode}</td><td>${membership.id}</td><td>${membership.member_name}</td><td>${membership.mobile_number}</td><td>${membership.email}</td><td>${membership.manager__name}</td><td>${membership.created_at}</td><td>${membership.expiration_date}</td><td>${membership.status}</td><td>${membership.plan__name}</td>`;
+                    tbody.appendChild(row);
+              });
+          }
+      });
+      </script>
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Anybody:100,200,300,regular,500,600,700,800,900,100italic,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+@import url(https://fonts.googleapis.com/css?family=Nunito:200,300,regular,500,600,700,800,900,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+* {
+  margin: 0;
+  padding: 0;
+  /* overscroll-behavior: none; */
+  font-family: "Nunito", sans-serif !important;
+}
+body {
+  font-family: "Nunito", sans-serif !important;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #d0d0d0;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  appearance: textfield;
+}
+::-webkit-scrollbar{
+    width: 7px;
+}
+
+::-webkit-scrollbar-track{
+    background: #f1f1f1; 
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb{
+    background: #b8b8b8; 
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background: #a0a0a0; 
+}
+/* Top Bar */
+#top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 7px 14px;
+  margin: 0.5rem;
+  border-radius: 5px;
+}
+
+#logo {
+  width: 140px;
+  height: 70px;
+  cursor: pointer;
+}
+#logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#user-info {
+  display: flex;
+  align-items: center;
+}
+
+#logout-button {
+  margin-left: 20px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: rgb(212, 47, 47);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#logout-button:hover {
+  background-color: rgb(254, 134, 134);
+}
+
+/* REPORT SECTION */
+.report {
+  display: flex;
+  background-color: white;
+  flex-wrap: wrap;
+  padding: 7px 14px;
+  margin: 0 0.5rem;
+  border-radius: 5px;
+}
+.report-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 5px;
+}
+
+/* REPORTS */
+
+.open-report {
+  width: 190px;
+  padding: 10px 10px;
+  border: none;
+  border-radius: 5px;
+  font-family: "Nunito", sans-serif;
+  background-color: #cf9619;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.open-report:hover {
+  background-color: #ab7b13;
+}
+
+.report-content {
+  display: none;
+  /* position: fixed; */
+  top: 0;
+  left: 0;
+  height: 100%;
+  /* width: 100%; */
+  background-color: rgb(255, 255, 255);
+  color: #000;
+  overflow-y: auto;
+  padding: 20px;
+  margin: 0.5rem;
+  border-radius: 5px;
+  /* border: 10px black solid; */
+  box-sizing: border-box;
+}
+
+.report-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.report-top h2 {
+  margin: 0;
+}
+
+.close-report {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: rgb(255, 109, 109);
+  cursor: pointer;
+}
+
+.filter-options {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.filter {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #28a745;
+  color: white;
+  font-family: "Nunito", sans-serif;
+  cursor: pointer;
+}
+
+.filter:hover {
+  background-color: #218838;
+}
+
+.custom-date-range {
+  background-color: #dfdfdf;
+  padding-left: 10px;
+  border-radius: 5px;
+}
+
+.custom-date-range label {
+  margin-right: 5px;
+}
+
+.custom-date-range input {
+  margin-right: 10px;
+}
+
+.customer-type-options {
+  margin-bottom: 15px;
+}
+
+.customer-type {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ffc107;
+  color: white;
+  cursor: pointer;
+}
+
+.customer-type:hover {
+  background-color: #e0a800;
+}
+
+.download-report {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #17a2b8;
+  color: #fff;
+  cursor: pointer;
+}
+
+.download-report:hover {
+  background-color: #138496;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th,
+table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table th {
+  background-color: #e7e7e7;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+
+
+@media only screen and (max-width: 768px) {
+  .open-report {
+    width: 100%;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* MAIN DASHBOARD */
+
+/* General Styles */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  /* width: 100%; */
+  margin: 0.5rem;
+}
+
+/* Row Styles */
+.row1{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 0.5rem;
+  height: 320px;
+}
+
+/* Box Styles */
+.managers-info, .packages-info {
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 13px;
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .row1, .row2 {
+      flex-direction: column;
+  }
+}
+
+.head{
+  font-size:clamp(1.3rem, 2vw, 2rem);
+  font-weight: bold;
+
+}
+
+/* MANAGERS TABLE */
+.managers-info,.packages-info {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-height: 400px; /* Set a fixed height */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.add-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-button:hover {
+  background-color: #45a049;
+}
+
+.managers-table-container {
+  overflow-y: auto;
+  max-height: 300px; /* Set a height for the scrollable area */
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.info-table th, .info-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  height: 50px;
+}
+
+.info-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.info-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.edit-button, .delete-button {
+  background-color: #008CBA;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.delete-button {
+  background-color: #f44336;
+}
+
+.edit-button:hover {
+  background-color: #007bb5;
+}
+
+.delete-button:hover {
+  background-color: #e53935;
+}
+
+
+/* ROW 2 */
+.row2 {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 500px;
+  gap: 0.5rem;
+}
+
+.collection-summary, .booking-summary, .court-summary {
+  /* width: 25%; */
+  flex: 1;
+  height: 400px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* overflow-y: auto; */
+}
+
+.head {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .row2 {
+      flex-direction: column;
+  }
+
+  .collection-summary, .booking-summary, .court-summary {
+      max-height: none;
+      margin-bottom: 20px;
+  }
+}
+
+
+.main-coll{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  background-color: rgb(212, 212, 212);
+  padding: 0 ;
+  gap: 0.3rem;
+  border-radius: 5px;
+  padding: 4px 5px;
+}
+.sub-head{
+  font-size: 18px;
+  font-weight: bold;
+}
+.items{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 3px 5px;
+  border-radius: 5px;
+}
+.item-price{
+  font-weight: bold;
+}
+.booking-summary .items{
+  padding: 7px 5px !important;
+}
+.total{
+  font-size: 20px;
+  font-weight: bold;
+  background-color: antiquewhite;
+}
+
+
+
+/* COURT */
+.court-coll{
+  height: 300px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 5px;
+}
+.courtbox{
+  height: 130px;
+  background-color: #6c9878 ;
+  width: 130px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  box-shadow: inset rgba(0, 101, 8, 0.627) 0px 0px 10px;
+}
+.courttext{
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+.no{
+  font-weight: bolder;
+  font-size: 23px;
+}
+
+
+
+/* POPUP */
+.add-button, .package-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px;
+}
+
+.add-button:hover, .package-button:hover {
+  background-color: #45a049;
+}
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.popup .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.popup h2 {
+  margin-top: 0;
+  font-size: 24px;
+}
+
+.popup form {
+  display: flex;
+  flex-direction: column;
+}
+
+.popup form input {
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.popup form .save-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.popup form .save-button:hover {
+  background-color: #45a049;
+}
+
+@media only screen and (max-width: 768px) {
+    .row1{
+        height: 500px;
+    }
+    .managers-info,.packages-info{
+        padding: 10px;
+    }
+    .row2{
+        height: auto;
+    }
+    .courtbox{
+        height: 100px;
+        width: 100px;
+        padding: 5px 10px;
+    }
+    .court-coll{
+        height: auto;
+        gap: 10px;
+    }
+}
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css"
+    />
+
+  </head>
+  <body>
+    <!-- Top Bar -->
+    <div id="top-bar">
+      <div id="logo">
+        <img src="{% static 'logo.png' %}" alt="Logo" />
+      </div>
+      <div id="user-info">
+        <span id="logged-in-user">Logged in as: <strong>{{ user.email }}</strong></span>
+        <a id="logout-button"  style="color: white; text-decoration:none;" href="{% url 'logout' %}">Logout
+        </a>
+    </div>
+    </div>
+
+    <!-- REPORT SECTION -->
+    <div class="report">
+      <div class="report-wrapper">
+        <button class="open-report" data-report="members-report">
+          Open Members Report
+        </button>
+        <button class="open-report" data-report="members-bookings-report">
+          Members Bookings Report
+        </button>
+        <button class="open-report" data-report="customers-report">
+          Open Customers Report
+        </button>
+        <button class="open-report" data-report="accounts-report">
+          Open Accounts Report
+        </button>
+        {% comment %} <button class="open-report" data-report="courts-report">
+          Open Courts Report
+        </button> {% endcomment %}
+        <button class="open-report" data-report="transactions-report">
+          Open Transactions Report
+        </button>
+        {% comment %} <button class="open-report" data-report="packages-report">
+          Open Packages Report
+        </button> {% endcomment %}
+      </div>
+    </div>
+
+    <div class="report-content" id="members-report">
+      <div class="report-top">
+          <h2>Members Report</h2>
+          <button class="close-report">&times;</button>
+      </div>
+      <div class="filter-options">
+          <button class="filter" id="filter-day">Last Day</button>
+          <button class="filter" id="filter-week">Last Week</button>
+          <button class="filter" id="filter-month">This Month</button>
+          <div class="custom-date-range">
+              <label for="members-start-date">Start Date:</label>
+              <input type="date" id="members-start-date" />
+              <label for="members-end-date">End Date:</label>
+              <input type="date" id="members-end-date" />
+              <button class="filter" id="filter-custom">Apply</button>
+          </div>
+      </div>
+      <button class="download-report">Download PDF</button>
+      <table>
+          <thead>
+              <tr>
+                   <th>Barcode</th>
+                    <th>Member ID</th>
+                    <th>Name</th>
+                    <th>Mobile No.</th>
+                    <th>Email</th>
+<!--                    <th>Hours Remaining</th>-->
+                    <th>Manager</th>
+<!--                    <th>Payment Method</th>-->
+                  <th>Created At</th>
+                  <th>Expiration Date</th>
+                  <!--                    <th>Updated At</th>-->
+                    <th>Status</th>
+                    <th>Plan</th>
+              </tr>
+          </thead>
+          <tbody id="membership-table-body">
+              {% for membership in memberships %}
+              <tr>
+                  <td>{{ membership.barcode }}</td>
+                    <td>{{ membership.id }}</td>
+                    <td>{{ membership.member_name }}</td>
+                    <td>{{ membership.mobile_number }}</td>
+                    <td>{{ membership.email }}</td>
+<!--                    <td>{{ membership.hours_remaining }}</td>-->
+                    <td>{{ membership.manager.name }}</td>
+<!--                    <td>{{ membership.payment_method }}</td>-->
+                  <td>{{ membership.created_at }}</td>
+                  <td>{{ membership.expiration_date }}</td>
+                  <!--                    <td>{{ membership.updated_at }}</td>-->
+                    <td>{{ membership.status }}</td>
+                    <td>{{ membership.plan.name }}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+  
+  <div class="report-content" id="members-bookings-report">
+    <div class="report-top">
+        <h2>Members Bookings Report</h2>
+        <button class="close-report">&times;</button>
+    </div>
+    <div class="filter-options">
+        <button class="filter" id="filter-member-bookings-day">Last Day</button>
+        <button class="filter" id="filter-member-bookings-week">Last Week</button>
+        <button class="filter" id="filter-member-bookings-month">This Month</button>
+        <div class="custom-date-range">
+            <label for="bookings-start-date">Start Date:</label>
+            <input type="date" id="bookings-start-date" />
+            <label for="bookings-end-date">End Date:</label>
+            <input type="date" id="bookings-end-date" />
+            <button class="filter" id="filter-member-bookings-custom">Apply</button>
+        </div>
+    </div>
+    <button class="download-report">Download PDF</button>
+    <table>
+        <thead>
+             <tr>
+                <th>Booking ID</th>
+                <th>Barcode</th>
+                <th>Member ID</th>
+                <th>Booking Date</th>
+                <th>Start Time</th>
+                <th>Slot</th>
+                <th>Manager Name</th>
+            </tr>
+        </thead>
+        <tbody id="member-booking-table-body">
+            {% for booking in mem_bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.membership.barcode }}</td>
+                <td>{{ booking.membership.id }}</td>
+                <td>{{ booking.booking_date }}</td>
+                <td>{{ booking.start_time }}</td>
+                <td>{{ booking.slots.number }}</td>
+                <td>{{ booking.manager.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('filter-member-bookings-day').addEventListener('click', function() {
+        filterMemberBookings('day');
+    });
+
+    document.getElementById('filter-member-bookings-week').addEventListener('click', function() {
+        filterMemberBookings('week');
+    });
+
+    document.getElementById('filter-member-bookings-month').addEventListener('click', function() {
+        filterMemberBookings('month');
+    });
+
+    document.getElementById('filter-member-bookings-custom').addEventListener('click', function() {
+        const startDate = document.getElementById('bookings-start-date').value;
+        const endDate = document.getElementById('bookings-end-date').value;
+        filterMemberBookings('custom', startDate, endDate);
+    });
+
+    function filterMemberBookings(filterType, startDate = '', endDate = '') {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/admin/filter_member_bookings/', true);
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                const bookings = JSON.parse(xhr.responseText);
+                updateTable(bookings);
+            }
+        };
+        const data = { filter: filterType, start_date: startDate, end_date: endDate };
+        xhr.send(JSON.stringify(data));
+    }
+
+    function updateTable(bookings) {
+        const tbody = document.getElementById('member-booking-table-body');
+        tbody.innerHTML = '';
+        bookings.forEach(function(booking) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${booking.id}</td>
+                             <td>${booking.membership__barcode}</td>
+                             <td>${booking.membership__id}</td>
+                             <td>${booking.booking_date}</td>
+                             <td>${booking.start_time}</td>
+                             <td>${booking.slots__number}</td>
+                             <td>${booking.manager__name}</td>`;
+            tbody.appendChild(row);
+        });
+    }
+});
+</script>
+
+<div class="report-content" id="customers-report">
+  <div class="report-top">
+      <h2>Customers Report</h2>
+      <button class="close-report">&times;</button>
+  </div>
+  <div class="filter-options">
+      <button class="filter" id="filter-customers-day">Last Day</button>
+      <button class="filter" id="filter-customers-week">Last Week</button>
+      <button class="filter" id="filter-customers-month">This Month</button>
+      <div class="custom-date-range">
+          <label for="customers-start-date">Start Date:</label>
+          <input type="date" id="customers-start-date" />
+          <label for="customers-end-date">End Date:</label>
+          <input type="date" id="customers-end-date" />
+          <button class="filter" id="filter-customers-custom">Apply</button>
+      </div>
+  </div>
+  <button class="download-report">Download PDF</button>
+  <table>
+      <thead>
+          <tr>
+              <th>Booking Count</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Mobile Number</th>
+              <th>Date</th>
+              <th>Start Time</th>
+              <th>Slot Number</th>
+              <th>Amount</th>
+              <th>Payment Method</th>
+              <th>Manager Name</th>
+              <th>Discount</th>
+          </tr>
+      </thead>
+      <tbody id="customer-table-body">
+          {% for customer in customers %}
+              <tr>
+                  <td>{{ customer.id }}</td>
+                  <td>{{ customer.name }}</td>
+                  <td>{{ customer.email }}</td>
+                  <td>{{ customer.mobile_number }}</td>
+                  <td>{{ customer.date }}</td>
+                  <td>{{ customer.start_time }}</td>
+                  <td>{{ customer.slots.number }}</td>
+                  <td>{{ customer.amount }}</td>
+                  <td>{{ customer.payment_method }}</td>
+                  <td>{{ customer.manager.name }}</td>
+                  <td>{{ customer.discount }}</td>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('filter-customers-day').addEventListener('click', function() {
+      filterCustomers('day');
+  });
+
+  document.getElementById('filter-customers-week').addEventListener('click', function() {
+      filterCustomers('week');
+  });
+
+  document.getElementById('filter-customers-month').addEventListener('click', function() {
+      filterCustomers('month');
+  });
+
+  document.getElementById('filter-customers-custom').addEventListener('click', function() {
+      const startDate = document.getElementById('customers-start-date').value;
+      const endDate = document.getElementById('customers-end-date').value;
+      filterCustomers('custom', startDate, endDate);
+  });
+
+  function filterCustomers(filterType, startDate = '', endDate = '') {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/admin/filter_customers/', true);
+      xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+      xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+              const customers = JSON.parse(xhr.responseText);
+              updateTable(customers);
+          }
+      };
+      const data = { filter: filterType, start_date: startDate, end_date: endDate };
+      xhr.send(JSON.stringify(data));
+  }
+  
+
+  function updateTable(customers) {
+        const tbody = document.getElementById('customer-table-body');
+        tbody.innerHTML = '';
+        customers.forEach(function(customer) {
+            const row = document.createElement('tr');
+            // console.log("CF ",customer.id);
+            row.innerHTML = `<td>${customer.id}</td>
+                             <td>${customer.name}</td>
+                             <td>${customer.email}</td>
+                             <td>${customer.mobile_number}</td>
+                             <td>${customer.date}</td>
+                             <td>${customer.start_time}</td>
+                             <td>${customer.slots__number}</td>
+                             <td>${customer.amount}</td>
+                             <td>${customer.payment_method}</td>
+                             <td>${customer.manager__name}</td>
+                             <td>${customer.discount}</td>`;
+            tbody.appendChild(row);
+        });
+    }
+});
+</script>
+
+
+    <div class="report-content" id="accounts-report">
+      <div class="report-top">
+        <h2>Accounts Report</h2>
+        <button class="close-report">&times;</button>
+      </div>
+      
+      
+      <button class="download-report">
+        Download PDF
+      </button>
+      <table>
+        <thead>
+          <tr>
+              <th>Account ID</th>
+              <th>name</th>
+              <th>email</th>
+              <th>Total Bookings</th>
+              <th>Collection</th>
+              <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for account in managers %}
+          <tr>
+              <td>{{ account.id }}</td>
+              <td>{{ account.name }}</td>
+              <td>{{ account.email }}</td>
+              <td>{{ account.total_bookings }}</td>
+              <td>{{ account.collection }}</td>
+              <td>{{ account.status }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% comment %} <div class="report-content" id="courts-report">
+      <div class="report-top">
+        <h2>Courts Report</h2>
+        <button class="close-report">&times;</button>
+      </div>
+      <div class="filter-options">
+        <button class="filter" data-filter="day">Last Day</button>
+        <button class="filter" data-filter="week">Last Week</button>
+        <button class="filter" data-filter="month">This Month</button>
+        <div class="custom-date-range">
+          <label for="courts-start-date">Start Date:</label>
+          <input type="date" id="courts-start-date" />
+          <label for="courts-end-date">End Date:</label>
+          <input type="date" id="courts-end-date" />
+          <button class="filter" data-filter="custom">Apply</button>
+        </div>
+      </div>
+      <button class="download-report">
+        Download PDF
+      </button>
+      <table>
+        <thead>
+          <tr>
+            <th>Court ID</th>
+            <th>Status</th>
+            <th>Last Booking</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>501</td>
+            <td>Occupied</td>
+            <td>2023-03-18 1:00 PM</td>
+          </tr>
+          <tr>
+            <td>502</td>
+            <td>Available</td>
+            <td>2023-03-18 3:00 PM</td>
+          </tr>
+        </tbody>
+      </table>
+    </div> {% endcomment %}
+
+    {% comment %} <div class="report-content" id="transactions-report">
+      <div class="report-top">
+          <h2>Transactions Report</h2>
+          <button class="close-report">&times;</button>
+      </div>
+      <div class="filter-options">
+          <button class="filter" id="filter-transactions-day" data-filter="day">Last Day</button>
+          <button class="filter" id="filter-transactions-week" data-filter="week">Last Week</button>
+          <button class="filter" id="filter-transactions-month" data-filter="month">This Month</button>
+          <div class="custom-date-range">
+              <label for="transactions-start-date">Start Date:</label>
+              <input type="date" id="transactions-start-date" />
+              <label for="transactions-end-date">End Date:</label>
+              <input type="date" id="transactions-end-date" />
+              <button class="filter" id="filter-transactions-custom" data-filter="custom">Apply</button>
+          </div>
+      </div>
+      <div class="customer-type-options">
+          <button class="customer-type" id="customer-type-one-time" data-type="one-time">
+              One-time Customers
+          </button>
+          <button class="customer-type" id="customer-type-members" data-type="members">
+              Members
+          </button>
+      </div>
+      <button class="download-report">Download PDF</button>
+      <table>
+          <thead>
+              <tr>
+                  <th>Transaction ID</th>
+                  <th>Account ID</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+              </tr>
+          </thead>
+          <tbody id="transactions-table-body">
+              {% for transaction in transactions %}
+              <tr>
+                  <td>{{ transaction.id }}</td>
+                  <td>{{ transaction.account_id }}</td>
+                  <td>{{ transaction.amount }}</td>
+                  <td>{{ transaction.date }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="4">No transactions found.</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div> {% endcomment %}
+
+  <div class="report-content" id="transactions-report">
+    <div class="report-top">
+        <h2>Transactions Report</h2>
+        <button class="close-report">&times;</button>
+    </div>
+    <div class="filter-options">
+        <button class="filter" id="filter-transactions-day" data-filter="day">Last Day</button>
+        <button class="filter" id="filter-transactions-week" data-filter="week">Last Week</button>
+        <button class="filter" id="filter-transactions-month" data-filter="month">This Month</button>
+        <div class="custom-date-range">
+            <label for="transactions-start-date">Start Date:</label>
+            <input type="date" id="transactions-start-date" />
+            <label for="transactions-end-date">End Date:</label>
+            <input type="date" id="transactions-end-date" />
+            <button class="filter" id="filter-transactions-custom" data-filter="custom">Apply</button>
+        </div>
+    </div>
+    <div class="customer-type-options">
+        <button class="customer-type" id="customer-type-one-time" data-type="one-time">
+            One-time Customers
+        </button>
+        <button class="customer-type" id="customer-type-members" data-type="members">
+            Members
+        </button>
+    </div>
+    <button class="download-report">Download PDF</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Account ID</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="transactions-table-body">
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.id }}</td>
+                <td>{{ transaction.account_id }}</td>
+                <td>{{ transaction.amount }}</td>
+                <td>{{ transaction.date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No transactions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterButtons = document.querySelectorAll('.filter');
+        const customerTypeButtons = document.querySelectorAll('.customer-type');
+        const startDateInput = document.getElementById('transactions-start-date');
+        const endDateInput = document.getElementById('transactions-end-date');
+        const transactionsTableBody = document.getElementById('transactions-table-body');
+
+        let filterType = 'all';
+        let customerType = 'all';
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                filterType = this.getAttribute('data-filter');
+                filterTransactions();
+            });
+        });
+
+        customerTypeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                customerType = this.getAttribute('data-type');
+                filterTransactions();
+            });
+        });
+
+        document.getElementById('filter-transactions-custom').addEventListener('click', function () {
+            filterTransactions();
+        });
+
+        function filterTransactions() {
+            fetch('/admin/filter_transactions/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    filter: filterType,
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    customer_type: customerType
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateTable(data);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function updateTable(data) {
+            transactionsTableBody.innerHTML = '';  // Clear existing data
+
+            data.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.id || transaction.transaction_id}</td>
+                    <td>${transaction.email || transaction.membership.email}</td>
+                    <td>${transaction.amount || transaction.booking_date}</td>
+                    <td>${transaction.date || transaction.date}</td>
+                `;
+                transactionsTableBody.appendChild(row);
+            });
+        }
+    });
+</script>
+  
+  
+{% comment %} 
+    <div class="report-content" id="packages-report">
+      <div class="report-top">
+        <h2>Packages Report</h2>
+        <button class="close-report">&times;</button>
+      </div>
+      <div class="filter-options">
+        <button class="filter" data-filter="day">Last Day</button>
+        <button class="filter" data-filter="week">Last Week</button>
+        <button class="filter" data-filter="month">This Month</button>
+        <div class="custom-date-range">
+          <label for="packages-start-date">Start Date:</label>
+          <input type="date" id="packages-start-date" />
+          <label for="packages-end-date">End Date:</label>
+          <input type="date" id="packages-end-date" />
+          <button class="filter" data-filter="custom">Apply</button>
+        </div>
+      </div>
+      <button class="download-report">
+        Download PDF
+      </button>
+      <table>
+        <thead>
+          <tr>
+            <th>Package ID</th>
+            <th>Name</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>701</td>
+            <td>Basic</td>
+            <td>$50</td>
+          </tr>
+          <tr>
+            <td>702</td>
+            <td>Premium</td>
+            <td>$100</td>
+          </tr>
+        </tbody>
+      </table>
+    </div> {% endcomment %}
+
+
+    <!-- POPUP -->
+    <div class="popup-overlay" id="manager-popup">
+        <div class="popup">
+            <button class="close-button">&times;</button>
+            <h2>Add Manager</h2>
+            <form>
+                <input type="text" name="name" placeholder="Name" required>
+                <input type="text" name="join_date" value="" placeholder="Join Date" readonly>
+                <input type="text" name="id" placeholder="ID" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="save-button">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="package-popup">
+        <div class="popup">
+            <button class="close-button">&times;</button>
+            <h2>Add Package</h2>
+            <form>
+                <input type="text" name="no" placeholder="No" required>
+                <input type="text" name="package_name" placeholder="Package Name" required>
+                <input type="text" name="slots" placeholder="Slots" required>
+                <input type="text" name="price" placeholder="Price" required>
+                <button type="submit" class="save-button">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="main" id="main-dashboard">
+      <div class="row1">
+        <div class="managers-info">
+          <div class="head">
+            Managers
+            {% comment %} <button class="add-button">Add</button> {% endcomment %}
+          </div>
+          <table class="info-table" id="manager-table">
+            <thead>
+              <tr>
+                <th>Manager ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                
+                
+              </tr>
+            </thead>
+            <tbody>
+              {% for manager in managers %}
+              <tr>
+                <td>{{ manager.id }}</td>
+                <td>{{ manager.name }}</td>
+                <td>{{ manager.email }}</td>
+              </tr>
+              {% endfor %}
+              
+            </tbody>
+          </table>
+        </div>
+
+        <div class="packages-info">
+          <div class="head">
+            Packages
+            {% comment %} <button class="package-button">Add</button> {% endcomment %}
+          </div>
+          <table class="info-table" id="package-table">
+            <thead>
+              <tr>
+                <th>Package Name</th>
+                <th>Package Amount</th>
+                <th>Total Hours</th>
+                <th>Validity</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+              {% for package in packages %}
+              <tr>
+                <td>{{ package.name }}</td>
+                <td>{{ package.amount }}</td>
+                <td>{{ package.Total_hours }}</td>
+                <td>{{ package.validity_days }}</td>
+              </tr>
+              {% endfor %}
+              
+              <!-- Add more rows as needed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="collection-summary">
+          <div class="head">Collection Summary</div>
+          <div class="main-coll">
+            <div class="sub-head">Today</div>
+            <div class="items">
+              <div class="item">Customer</div>
+              <div class="item-price" id="trc">{{todays_customer_ammount}}₹</div>
+            </div>
+            <div class="items">
+              <div class="item">Membership</div>
+              <div class="item-price" id="tmc">{{todays_membership_amount}}₹</div>
+            </div>
+            
+            <div class="items total">
+                <div class="item">Total</div>
+                <div class="item-price" id="tdt">{{total_todays_collections}}₹</div>
+              </div>
+          </div>
+         
+          <div class="main-coll">
+            <div class="sub-head">This Month</div>
+            <div class="items">
+              <div class="item">Regular Customer</div>
+              <div class="item-price" id="mrc">{{thismonth_customer_ammount}}₹</div>
+            </div>
+            <div class="items">
+              <div class="item">Membership Customer</div>
+              <div class="item-price" id="mmc">{{thismonth_membership_amount}}₹</div>
+            </div>
+            
+            <div class="items total">
+              <div class="item">Total</div>
+              <div class="item-price" id="tmt">{{total_thismonth_collections}}₹</div>
+            </div>
+          </div>
+        </div>
+        <div class="booking-summary">
+            <div class="head">Bookings Summary</div>
+            <div class="main-coll">
+              <div class="sub-head">Today</div>
+              <div class="items">
+                <div class="item">Regular Customer</div>
+                <div class="item-price" id="trcb">{{today_booking_slot}}</div>
+              </div>
+              <div class="items">
+                <div class="item">Membership Customer</div>
+                <div class="item-price" id="tmcb">{{today_membership_slot}}</div>
+              </div>
+              <div class="items total">
+                <div class="item">Total Bookings</div>
+                <div class="item-price" id="tbt">{{todays_total_slot}}</div>
+              </div>
+            </div>
+           
+            <div class="main-coll">
+              <div class="sub-head">This Month</div>
+              <div class="items">
+                <div class="item">Regular Customer</div>
+                <div class="item-price" id="mrcb">{{thismounth_booking_slot}}</div>
+              </div>
+              <div class="items">
+                <div class="item">Membership Customer</div>
+                <div class="item-price" id="mmcb">{{thismonth_membership_slot}}</div>
+              </div>
+              <div class="items total">
+                <div class="item">Total Bookings</div>
+                <div class="item-price" id="tmtb">{{total_thismonth_slot}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="court-summary">
+            <div class="head">Court Summary</div>
+            <div class="court-coll">
+                <div class="courtbox">
+                    <div class="courttext">
+                        <div class="courtno">Court 1</div>
+                        <div class="played">Played</div>
+                        <div class="no">{{court_one}}</div>
+                        <div class="times">Times</div>
+                    </div>
+                </div>
+                <div class="courtbox">
+                    <div class="courttext">
+                        <div class="courtno">Court 2</div>
+                        <div class="played">Played</div>
+                        <div class="no">{{court_two}}</div>
+                        <div class="times">Times</div>
+                    </div>
+                </div>
+                <div class="courtbox">
+                    <div class="courttext">
+                        <div class="courtno">Court 3</div>
+                        <div class="played">Played</div>
+                        <div class="no">{{court_three}}</div>
+                        <div class="times">Times</div>
+                    </div>
+                </div>
+                <div class="courtbox">
+                    <div class="courttext">
+                        <div class="courtno">Court 4</div>
+                        <div class="played">Played</div>
+                        <div class="no">{{court_four}}</div>
+                        <div class="times">Times</div>
+                    </div>
+                </div>
+                <div class="courtbox">
+                    <div class="courttext">
+                        <div class="courtno">Court 5</div>
+                        <div class="played">Played</div>
+                        <div class="no">{{court_five}}</div>
+                        <div class="times">Times</div>
+                    </div>
+                </div>
+            </div>
+          </div>
+      </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.18/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const reportButtons = document.querySelectorAll('.open-report');
+    const reportContents = document.querySelectorAll('.report-content');
+    const closeButtons = document.querySelectorAll('.close-report');
+    const downloadButtons = document.querySelectorAll('.download-report');
+
+    reportButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const reportId = this.getAttribute('data-report');
+            const report = document.getElementById(reportId);
+
+            // Hide all report contents
+            reportContents.forEach(content => content.style.display = 'none');
+            // Show the selected report
+            report.style.display = 'block';
+        });
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            this.closest('.report-content').style.display = 'none';
+        });
+    });
+
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const reportContent = this.closest('.report-content');
+            const reportTitle = reportContent.querySelector('h2').innerText;
+            const reportTable = reportContent.querySelector('table');
+
+            const headers = [];
+            const data = [];
+
+            reportTable.querySelectorAll('thead th').forEach(th => headers.push(th.innerText));
+            reportTable.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => row.push(td.innerText));
+                data.push(row);
+            });
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(18);
+            doc.text(reportTitle, 14, 22);
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 30,
+                theme: 'striped'
+            });
+            doc.save(`${reportTitle}.pdf`);
+        });
+    });
+});
+
+
+
+
+
+// MAIN DASHBOARD
+document.addEventListener('DOMContentLoaded', () => {
+    // Add event listeners for the report buttons
+    document.querySelectorAll('.open-report').forEach(button => {
+        button.addEventListener('click', () => {
+            const reportId = button.getAttribute('data-report');
+            document.getElementById('main-dashboard').style.display = 'none';
+            document.getElementById(`${reportId}-report`).style.display = 'block';
+        });
+    });
+
+    // Add event listeners for the close report buttons
+    document.querySelectorAll('.close-report').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.report-content').forEach(report => {
+                report.style.display = 'none';
+            });
+            document.getElementById('main-dashboard').style.display = 'grid';
+        });
+    });
+
+});
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const managerButton = document.querySelector('.add-button');
+    const packageButton = document.querySelector('.package-button');
+    const managerPopupOverlay = document.getElementById('manager-popup');
+    const packagePopupOverlay = document.getElementById('package-popup');
+    const closeButtons = document.querySelectorAll('.close-button');
+    const joinDateInput = document.querySelector('input[name="join_date"]');
+
+    // Set today's date as default for the join date input
+    const today = new Date().toISOString().split('T')[0];
+    joinDateInput.value = today;
+
+    managerButton.addEventListener('click', function () {
+        managerPopupOverlay.style.display = 'flex';
+    });
+
+    packageButton.addEventListener('click', function () {
+        packagePopupOverlay.style.display = 'flex';
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            managerPopupOverlay.style.display = 'none';
+            packagePopupOverlay.style.display = 'none';
+        });
+    });
+
+    // Close the popup when clicking outside of it
+    document.querySelectorAll('.popup-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function (event) {
+            if (event.target === overlay) {
+                overlay.style.display = 'none';
+            }
+        });
+    });
+});
+    </script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Advanced Membership Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>Confirm Advanced Membership Booking</h2>
+    <form method="post" action="{% url 'confirm_advanced_membership_booking' booking.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ booking.membership.name }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ booking.membership.email }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="mobile_number">Mobile Number</label>
+            <input type="text" class="form-control" id="mobile_number" name="mobile_number" value="{{ booking.membership.mobile_number }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="booking_date">Booking Date</label>
+            <input type="text" class="form-control" id="booking_date" name="booking_date" value="{{ booking.booking_date }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="start_time">Start Time</label>
+            <input type="text" class="form-control" id="start_time" name="start_time" value="{{ booking.start_time }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="end_time">End Time</label>
+            <input type="text" class="form-control" id="end_time" name="end_time" value="{{ booking.end_time }}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="payment_method">Payment Method</label>
+            <select class="form-control" id="payment_method" name="payment_method" required>
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+</div>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Advanced Membership Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Confirm Advanced Membership Booking</h2>
+    <div class="form-group">
+        <label for="search_booking_id">Search Booking ID</label>
+        <input type="text" class="form-control" id="search_booking_id" name="search_booking_id">
+        <button type="button" class="btn btn-primary mt-2" id="fetch_booking_button">Fetch Booking</button>
+    </div>
+    <form method="post" action="{% url 'confirm_advanced_booking' 0 %}" id="booking_form">
+        {% csrf_token %}
+        <div id="booking_details" style="display: none;">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" readonly>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" readonly>
+            </div>
+            <div class="form-group">
+                <label for="mobile_number">Mobile Number</label>
+                <input type="text" class="form-control" id="mobile_number" name="mobile_number" maxlength="10" readonly>
+            </div>
+            <div class="form-group">
+                <label for="booking_date">Booking Date</label>
+                <input type="text" class="form-control" id="booking_date" name="booking_date" readonly>
+            </div>
+            <div class="form-group">
+                <label for="start_time">Start Time</label>
+                <input type="text" class="form-control" id="start_time" name="start_time" readonly>
+            </div>
+            <div class="form-group">
+                <label for="end_time">End Time</label>
+                <input type="text" class="form-control" id="end_time" name="end_time" readonly>
+            </div>
+            <div class="form-group">
+                <label for="payment_method">Payment Method</label>
+                <select class="form-control" id="payment_method" name="payment_method" required>
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Confirm Booking</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#fetch_booking_button').click(function() {
+            var bookingId = $('#search_booking_id').val();
+            if (bookingId) {
+                $.ajax({
+                    url: '{% url "get_booking_details" %}',
+                    data: {
+                        'booking_id': bookingId
+                    },
+                    success: function(data) {
+                        if (data) {
+                            $('#name').val(data.name);
+                            $('#email').val(data.email);
+                            $('#mobile_number').val(data.mobile_number);
+                            $('#booking_date').val(data.booking_date);
+                            $('#start_time').val(data.start_time);
+                            $('#end_time').val(data.end_time);
+                            $('#booking_form').attr('action', '{% url "confirm_advanced_booking" 0 %}'.replace('0', bookingId));
+                            $('#booking_details').show();
+                        } else {
+                            alert('No booking found with the provided ID.');
+                        }
+                    }
+                });
+            } else {
+                alert('Please enter a booking ID.');
+            }
+        });
+    });
+</script>
+</body>
+</html>
+

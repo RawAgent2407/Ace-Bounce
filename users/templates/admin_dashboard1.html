@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>Admin Dashboard</h2>
+    <nav class="nav">
+        <a class="nav-link" href="{% url 'create_manager' %}">Create Manager</a>
+        <a class="nav-link" href="{% url 'manage_managers' %}">Manage Managers</a>
+        <a class="nav-link" href="{% url 'create_booking' %}">Create Booking</a>
+        <a class="nav-link" href="{% url 'view_bookings' %}">View Bookings</a>
+        <a class="nav-link" href="{% url 'manage_memberships' %}">Manage Memberships</a>
+        <a class="nav-link" href="{% url 'view_customers' %}">View Customers</a>
+    </nav>
+</div>
+</body>
+</html>

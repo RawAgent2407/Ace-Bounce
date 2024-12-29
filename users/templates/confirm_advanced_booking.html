@@ -1,0 +1,95 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Advanced Membership Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Confirm Advanced Booking</h2>
+    <div class="form-group">
+        <label for="search_mobile_number">Search Mobile Number</label>
+        <input type="text" class="form-control" id="search_mobile_number" name="search_mobile_number" oninput="searchBookings()">
+    </div>
+    <ul id="search_results" class="list-group"></ul>
+    <form method="post" action="{% url 'confirm_advanced_booking' %}">
+        {% csrf_token %}
+        <input type="hidden" id="booking_id" name="booking_id">
+        <div class="form-group">
+            <label for="advanced_booking_name">Name</label>
+            <input type="text" class="form-control" id="advanced_booking_name" name="advanced_booking_name" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_email">Email</label>
+            <input type="email" class="form-control" id="advanced_booking_email" name="advanced_booking_email" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_mobile_number">Mobile Number</label>
+            <input type="text" class="form-control" id="advanced_booking_mobile_number" name="advanced_booking_mobile_number" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_booking_date">Booking Date</label>
+            <input type="text" class="form-control" id="advanced_booking_booking_date" name="advanced_booking_booking_date" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_court">Court</label>
+            <input type="text" class="form-control" id="advanced_booking_court" name="advanced_booking_court" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_start_time">Start Time</label>
+            <input type="text" class="form-control" id="advanced_booking_start_time" name="advanced_booking_start_time" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_end_time">End Time</label>
+            <input type="text" class="form-control" id="advanced_booking_end_time" name="advanced_booking_end_time" readonly>
+        </div>
+        <div class="form-group">
+            <label for="advanced_booking_payment_method">Payment Method</label>
+            <select class="form-control" id="advanced_booking_payment_method" name="advanced_booking_payment_method" required>
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+</div>
+<script>
+function searchBookings() {
+    var mobile_number = document.getElementById('search_mobile_number').value;
+    if (mobile_number.length > 0) {
+        $.ajax({
+            url: '{% url "search_booking_by_mobile" %}',
+            data: {
+                'advanced_booking_mobile_number': mobile_number
+            },
+            dataType: 'json',
+            success: function(data) {
+                var searchResults = document.getElementById('search_results');
+                searchResults.innerHTML = '';
+                data.forEach(function(booking) {
+                    var li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = booking.name + ' - ' + booking.mobile_number + ' - ' + booking.booking_date + ' - ' + booking.start_time + ' - ' + booking.end_time;
+                    li.onclick = function() {
+                        document.getElementById('booking_id').value = booking.id;
+                        document.getElementById('advanced_booking_name').value = booking.name;
+                        document.getElementById('advanced_booking_email').value = booking.email;
+                        document.getElementById('advanced_booking_mobile_number').value = booking.mobile_number;
+                        document.getElementById('advanced_booking_booking_date').value = booking.booking_date;
+                        document.getElementById('advanced_booking_start_time').value = booking.start_time;
+                        document.getElementById('advanced_booking_end_time').value = booking.end_time;
+                        document.getElementById('advanced_booking_court').value = booking.court;
+                        searchResults.innerHTML = '';
+                    };
+                    searchResults.appendChild(li);
+                });
+            }
+        });
+    } else {
+        document.getElementById('search_results').innerHTML = '';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACE BOUNCE Dashboard</title>
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Anybody:100,200,300,regular,500,600,700,800,900,100italic,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+@import url(https://fonts.googleapis.com/css?family=Nunito:200,300,regular,500,600,700,800,900,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+* {
+  margin: 0;
+  padding: 0;
+  /* overscroll-behavior: none; */
+}
+body {
+  font-family: "Nunito", sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #d0d0d0;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  appearance: textfield;
+}
+/* Top Bar */
+#top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 7px 14px;
+  margin: 0.5rem;
+  border-radius: 5px;
+}
+
+#logo {
+  width: 160px;
+  height: 80px;
+  cursor: pointer;
+}
+#logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#user-info {
+  display: flex;
+  align-items: center;
+}
+
+#logout-button {
+  margin-left: 20px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: rgb(212, 47, 47);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#logout-button:hover {
+  background-color: rgb(254, 134, 134);
+}
+
+
+
+/* SIDE BAR */
+#logo {
+  cursor: pointer;
+}
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background-color: #f0f0f0;
+  overflow-x: hidden;
+  transition: 0.3s;
+}
+
+.sidebar-content {
+  padding: 20px;
+}
+#sidebar .wrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 30px;
+}
+.wrapper .sb{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: space-between;
+  width: 100%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+#sidebar.active {
+  width: 25%;
+}
+
+#close-btn {
+  font-size: 30px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+}
+
+#sidebar .full-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.tb-height{
+  height: 100vh !important;
+}
+.sh{
+  height: calc(100vh - 60px) !important;
+}
+#sidebar .hidden {
+  display: none;
+}
+
+#sidebar #summary-button {
+  padding: 10px;
+  background-color: #b07900;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 30px;
+}
+
+
+
+/* Main Content */
+#main-content {
+  display: flex;
+  /* height: calc(100% - 60px); */
+  height: auto;
+}
+
+#left-section {
+  width: 25%;
+  margin: 0 0.5rem 0.5rem 0.5rem;
+  background-color: #ffffff;
+  padding: 20px;
+  height: auto;
+  box-sizing: border-box;
+  border-radius: 5px;
+}
+
+#right-section {
+  width: 75%;
+  border-radius: 5px;
+  margin: 0 0.5rem 0.5rem 0rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#quick-actions {
+  margin-bottom: 20px;
+}
+
+.quick-action-button {
+  display: block;
+  font-size: large;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #ca8a04;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.quick-action-button:hover {
+  background-color: #b07900;
+}
+
+#court-occupancy {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+.court-div{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+}
+
+.court {
+  padding: 10px;
+  background-color: #ccc;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.court.occupied {
+  background-color: darkgreen;
+  color: white;
+}
+
+#inventory-management {
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inventory-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
+}
+.inv-data{
+  font-size: 30px;
+  color: #b07900;
+
+}
+
+/* Right Section */
+.scrollable-content {
+  height: 200px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
+
+th {
+  background-color: rgb(221, 221, 221);
+
+  color: #b07900;
+}
+
+.status-button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.status-button.in {
+  background-color: green;
+  color: white;
+}
+
+.status-button.out {
+  background-color: red;
+  color: white;
+}
+#todays-booking,#todays-membership,#expiring-membership,#advance-booking{
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+
+/* SLOT BOOKING FORM */
+/* SLOT BOOKING FORM */
+/* Popup Styles */
+/* Popup Styles */
+/* Popup Styles */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto; /* Enable vertical scrolling */
+  z-index: 9999; /* Ensure popup is on top */
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  width: 80%;
+  max-width: 700px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px; /* Add margin for breathing room */
+  box-sizing: border-box; /* Ensure padding is included in the width */
+  max-height: 80vh; /* Ensure content doesn't exceed 80% of viewport height */
+  overflow-y: auto; /* Enable scrolling within the popup */
+  h2{
+    color: #b07900;
+    margin-bottom: 10px;
+  }
+}
+.close-popup {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 24px;
+  color: red;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+#info-section p {
+  margin: 10px 0;
+}
+/* Form Styling */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+form div {
+  flex: 1 1 calc(50% - 20px);
+  display: flex;
+  flex-direction: column;
+}
+
+form div label {
+  font-weight: bold;
+}
+
+form div input,
+form div select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.full-width {
+  flex: 1 1 100%;
+}
+
+.radio-buttons {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.radio-buttons label {
+  margin-right: 10px;
+}
+
+.radio-buttons input {
+  margin-right: 5px;
+}
+
+.save-button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #b07900;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1000px) {
+  .popup-content {
+    width: 90%; /* Adjusted width for smaller screens */
+    padding: 15px; /* Smaller padding for smaller screens */
+    margin: 10px; /* Less margin for small screens */
+    max-height: 70vh;
+  }
+
+  form div {
+    flex: 1 1 100%; /* Single column layout on smaller screens */
+  }
+  #sidebar.active{
+    width: 100%;
+  }
+}
+@media only screen and (max-width: 1000px) {
+  #logo{
+    width: 100px;
+    height: 50px;
+  }
+  #main-content {
+    flex-direction: column;
+    width: 100dvw;
+    margin: 0;
+    gap: 5px;
+}
+#left-section {
+  width: 100%;
+  margin: 0;
+}
+#right-section {
+  width: 100dvw;
+  margin: 0;
+  gap: 0.5rem;
+}
+.scrollable-content {
+  height: 250px;
+}
+
+}
+
+    </style>
+  </head>
+  <body>
+    <!-- Top Bar -->
+    <div id="top-bar">
+      <div id="logo">
+        <img src="/img/logo_2-01.png" alt="ACE BOUNCE Logo" />
+      </div>
+      <div id="user-info">
+        <span id="logged-in-user">Logged in as: <strong>User</strong></span>
+        <button id="logout-button">Logout</button>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div class="sidebar-content">
+        <span id="close-btn">&times;</span>
+        <div class="wrapper">
+          <div class="sb">
+            <h2>Today's Collection</h2>
+            <h2>₹1000</h2>
+          </div>
+          <div class="sb">
+            <h2>Today's Bookings</h2>
+            <h2>10</h2>
+          </div>
+          <div class="sb">
+            <h2>Today's Membership</h2>
+            <h2>10</h2>
+          </div>
+        </div>
+        <button id="summary-button">Today's Summary</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+      <!-- Left 25% -->
+      <div id="left-section">
+        <!-- Quick Actions -->
+        <div id="quick-actions">
+          <button
+            class="quick-action-button"
+            onclick="showPopup('slot-booking-popup')"
+          >
+            Slot Booking
+          </button>
+          <div class="adv">
+          <button
+            class="quick-action-button"
+            onclick="showPopup('advance-booking-popup')"
+          >
+            Advance Booking
+          </button>
+          <button
+            class="quick-action-button"
+            onclick="showPopup('member-advance-booking-popup')"
+          >
+            Member Advance Booking
+          </button>
+          </div>
+          <button
+            class="quick-action-button"
+            onclick="showPopup('membership-booking-popup')"
+          >
+            Membership Booking
+          </button>
+          <button
+            class="quick-action-button"
+            onclick="showPopup('edit-add-membership-popup')"
+          >
+            Edit/Add Membership
+          </button>
+        </div>
+        <!-- Court Occupancy -->
+        <div id="court-occupancy">
+          <h2>Court Occupancy</h2>
+          <div class="court-div">
+            <div class="court" id="court1">1</div>
+            <div class="court" id="court2">2</div>
+            <div class="court" id="court3">3</div>
+            <div class="court" id="court4">4</div>
+            <div class="court" id="court5">5</div>
+          </div>
+        </div>
+
+        <!-- Inventory Management -->
+        <div id="inventory-management">
+          <h2>Inventory Management</h2>
+          <div class="inventory-item">
+            <span>Total Rackets:</span>
+            <span id="total-rackets" class="inv-data"><strong>0</strong></span>
+          </div>
+          <div class="inventory-item">
+            <span>Occupied Rackets:</span>
+            <span id="occupied-rackets" class="inv-data"
+              ><strong>0</strong></span
+            >
+          </div>
+          <div class="inventory-item">
+            <span>Total Balls:</span>
+            <span id="total-balls" class="inv-data"><strong>0</strong></span>
+          </div>
+          <div class="inventory-item">
+            <span>Occupied Balls:</span>
+            <span id="occupied-balls" class="inv-data"><strong>0</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 75% -->
+      <div id="right-section">
+        <!-- Today's Booking -->
+        <div id="todays-booking">
+          <h2>Today's Booking</h2>
+          <div class="scrollable-content" id="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Slot (start time-end time)</th>
+                  <th>Court No</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>John Doe</td>
+                  <td>10:00 - 11:00</td>
+                  <td>1</td>
+                  <td>₹500</td>
+                  <td>
+                    IN
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- Advance Booking -->
+        <div id="advance-booking">
+            <h2>Advance Booking</h2>
+            <div class="scrollable-content" id="scroll-advance">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Court</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Jane Smith</td>
+                    <td>jane.smith@example.com</td>
+                    <td>123-456-7890</td>
+                    <td>2024-07-20</td>
+                    <td>09:00</td>
+                    <td>10:00</td>
+                    <td>2</td>
+                    <td>
+                      <button class="status-button in" onclick="showPopup('info-popup', this)">IN</button>
+                      <button class="status-button out">OUT</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+<!-- INFO POPUP -->
+          <div id="info-popup" class="popup hidden">
+            <div class="popup-content">
+              <span class="close-popup" onclick="hidePopup('info-popup')">&times;</span>
+              <h2>Booking Information</h2>
+              <div id="info-section">
+                <p><strong>Name:</strong> <span id="info-name"></span></p>
+                <p><strong>Email:</strong> <span id="info-email"></span></p>
+                <p><strong>Mobile:</strong> <span id="info-mobile"></span></p>
+                <p><strong>Date:</strong> <span id="info-date"></span></p>
+                <p><strong>Start Time:</strong> <span id="info-start-time"></span></p>
+                <p><strong>End Time:</strong> <span id="info-end-time"></span></p>
+                <p><strong>Court:</strong> <span id="info-court"></span></p>
+              </div>
+              <div>
+                <label for="payment-mode">Payment Mode</label>
+                <div class="radio-buttons">
+                  <label for="payment-cash">
+                    <input type="radio" id="payment-cash" name="payment-mode" value="cash" required />
+                    Cash
+                  </label>
+                  <label for="payment-upi">
+                    <input type="radio" id="payment-upi" name="payment-mode" value="upi" required />
+                    UPI
+                  </label>
+                </div>
+              </div>
+              <div class="full-width">
+                <button type="button" class="save-button" onclick="redirectToManager()">IN</button>
+              </div>
+            </div>
+          </div>
+
+        <!-- Today's Membership -->
+        <div id="todays-membership" class="hidden">
+          <h2>Today's Membership</h2>
+          <div class="scrollable-content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Membership ID</th>
+                  <th>Slots</th>
+                  <th>Plan</th>
+                  <th>Valid From</th>
+                  <th>Valid Till</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jane Doe</td>
+                  <td>123456</td>
+                  <td>10</td>
+                  <td>Gold</td>
+                  <td>01/01/2024</td>
+                  <td>12/31/2024</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Expiring Membership -->
+        <div id="expiring-membership" class="hidden">
+          <h2>Expiring Membership</h2>
+          <div class="scrollable-content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>ID</th>
+                  <th>Plan</th>
+                  <th>Expiry In</th>
+                  <th>Slots Remaining</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jim Dowwwdwdwdwde</td>
+                  <td>789012</td>
+                  <td>Silver</td>
+                  <td>30 days</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>Jim Do</td>
+                  <td>789012</td>
+                  <td>Silver</td>
+                  <td>30 days</td>
+                  <td>5</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="slot-booking-popup" class="popup hidden">
+      <div class="popup-content">
+        <span class="close-popup" onclick="hidePopup('slot-booking-popup')"
+          >&times;</span
+        >
+        <h2>Slot Booking</h2>
+        <hr><br>
+        <form onsubmit="return handleSubmit(event)">
+          <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div>
+            <label for="mobile">Mobile Number</label>
+            <input type="tel" id="mobile" name="mobile" required />
+          </div>
+          <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" max="2099-12-31" required />
+          </div>
+          
+          <div>
+            <label for="start-time">Start Time</label>
+            <input type="time" id="start-time" name="start-time" required />
+          </div>
+          <div>
+            <label for="slots">Slots</label>
+            <select id="slots" name="slots" required>
+              <option value="1">1 Slot</option>
+              <option value="2">2 Slots</option>
+              <option value="3">3 Slots</option>
+            </select>
+          </div>
+          <div>
+            <label for="end-time">End Time</label>
+            <input type="time" id="end-time" name="end-time" readonly />
+          </div>
+
+          <div class="full-width">
+            <label>Payment Mode</label>
+            <div class="radio-buttons">
+              <label for="cash">
+                <input
+                  type="radio"
+                  id="cash"
+                  name="payment-mode"
+                  value="cash"
+                  required
+                />
+                Cash
+              </label>
+              <label for="upi">
+                <input
+                  type="radio"
+                  id="upi"
+                  name="payment-mode"
+                  value="upi"
+                  required
+                />
+                UPI
+              </label>
+            </div>
+          </div>
+          <div>
+            <label for="discount">Discount</label>
+            <input type="number" id="discount" name="discount" required />
+          </div>
+          <div>
+            <label for="court">Court</label>
+            <select id="court" name="court" required>
+              <option value="court1">Court 1</option>
+              <option value="court2">Court 2</option>
+              <option value="court3">Court 3</option>
+              <option value="court4">Court 4</option>
+              <option value="court5">Court 5</option>
+            </select>
+          </div>
+          <div>
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" name="amount" required />
+          </div>
+          <div class="full-width">
+            <button type="submit" class="save-button">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!--Member Advance Booking Popup -->
+    <div id="member-advance-booking-popup" class="popup hidden">
+        <div class="popup-content">
+          <span class="close-popup" onclick="hidePopup('member-advance-booking-popup')">&times;</span>
+          <h2>Member Advance Booking</h2>
+          <hr><br>
+          <form onsubmit="return handleSubmit(event)">
+            <div class="full-width">
+              <label for="search-mobile">Search By Mobile Number</label>
+              <input type="tel" id="search-mobile" name="search-mobile" required />
+            </div>
+            <div>
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div>
+              <label for="mobile">Mobile Number</label>
+              <input type="tel" id="mobile" name="mobile" required />
+            </div>
+            <div>
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" max="2099-12-31" required />
+              </div>
+              
+            <div>
+              <label for="start-time">Start Time</label>
+              <input type="time" id="start-time" name="start-time" required />
+            </div>
+            <div>
+              <label for="slots">Slots</label>
+              <select id="slots" name="slots" required>
+                <option value="1">1 Slot</option>
+                <option value="2">2 Slots</option>
+                <option value="3">3 Slots</option>
+              </select>
+            </div>
+            <div>
+              <label for="end-time">End Time</label>
+              <input type="time" id="end-time" name="end-time" readonly />
+            </div>
+            <div class="full-width">
+              <label>Payment Mode</label>
+              <div class="radio-buttons">
+                <label for="cash">
+                  <input type="radio" id="cash" name="payment-mode" value="cash" required />
+                  Cash
+                </label>
+                <label for="upi">
+                  <input type="radio" id="upi" name="payment-mode" value="upi" required />
+                  UPI
+                </label>
+              </div>
+            </div>
+            <div>
+              <label for="discount">Discount</label>
+              <input type="number" id="discount" name="discount" required />
+            </div>
+            <div>
+              <label for="court">Court</label>
+              <select id="court" name="court" required>
+                <option value="court1">Court 1</option>
+                <option value="court2">Court 2</option>
+                <option value="court3">Court 3</option>
+                <option value="court4">Court 4</option>
+                <option value="court5">Court 5</option>
+              </select>
+            </div>
+            <div class="full-width">
+              <button type="submit" class="save-button">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+<!--Advance Booking Popup  -->
+      <div id="advance-booking-popup" class="popup hidden">
+        <div class="popup-content">
+          <span class="close-popup" onclick="hidePopup('advance-booking-popup')">&times;</span>
+          <h2>Advance Booking</h2>
+          <hr><br>
+          <form onsubmit="return handleSubmit(event)">
+            <div>
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div>
+              <label for="mobile">Mobile Number</label>
+              <input type="tel" id="mobile" name="mobile" required />
+            </div>
+            <div>
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" max="2099-12-31" required />
+              </div>
+              
+            <div>
+              <label for="start-time">Start Time</label>
+              <input type="time" id="start-time" name="start-time" required />
+            </div>
+            <div>
+              <label for="slots">Slots</label>
+              <select id="slots" name="slots" required>
+                <option value="1">1 Slot</option>
+                <option value="2">2 Slots</option>
+                <option value="3">3 Slots</option>
+              </select>
+            </div>
+            <div>
+              <label for="end-time">End Time</label>
+              <input type="time" id="end-time" name="end-time" readonly />
+            </div>
+            <div class="full-width">
+              <label>Payment Mode</label>
+              <div class="radio-buttons">
+                <label for="cash">
+                  <input type="radio" id="cash" name="payment-mode" value="cash" required />
+                  Cash
+                </label>
+                <label for="upi">
+                  <input type="radio" id="upi" name="payment-mode" value="upi" required />
+                  UPI
+                </label>
+              </div>
+            </div>
+            <div>
+              <label for="discount">Discount</label>
+              <input type="number" id="discount" name="discount" required />
+            </div>
+            <div>
+              <label for="court">Court</label>
+              <select id="court" name="court" required>
+                <option value="court1">Court 1</option>
+                <option value="court2">Court 2</option>
+                <option value="court3">Court 3</option>
+                <option value="court4">Court 4</option>
+                <option value="court5">Court 5</option>
+              </select>
+            </div>
+            <div class="full-width">
+              <button type="submit" class="save-button">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+
+    <!-- Membership Booking Popup -->
+    <div id="membership-booking-popup" class="popup hidden">
+      <div class="popup-content">
+        <span
+          class="close-popup"
+          onclick="hidePopup('membership-booking-popup')"
+          >&times;</span
+        >
+        <h2>Membership Booking</h2>
+        <hr><br>
+        <form onsubmit="return handleSubmit(event)">
+          <div>
+            <label for="m-name">Name</label>
+            <input type="text" id="m-name" name="m-name" required />
+          </div>
+          <div>
+            <label for="m-mobile">Mobile Number</label>
+            <input type="tel" id="m-mobile" name="m-mobile" required />
+          </div>
+          <div>
+            <label for="m-email">Email</label>
+            <input type="email" id="m-email" name="m-email" required />
+          </div>
+          <div>
+            <label for="barcode">Barcode</label>
+            <input type="text" id="barcode" name="barcode" readonly />
+          </div>
+          <div>
+            <label for="plan">Plan</label>
+            <input type="text" id="plan" name="plan" readonly />
+          </div>
+          <div>
+            <label for="hours-remaining">Hours Remaining</label>
+            <input
+              type="text"
+              id="hours-remaining"
+              name="hours-remaining"
+              readonly
+            />
+          </div>
+          <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" max="2099-12-31" required />
+          </div>
+          
+          <div>
+            <label for="m-start-time">Start Time</label>
+            <input type="time" id="m-start-time" name="m-start-time" required />
+          </div>
+          <div>
+            <label for="m-slots">Slots</label>
+            <select id="m-slots" name="m-slots" required>
+              <option value="1">1 Slot</option>
+              <option value="2">2 Slots</option>
+              <option value="3">3 Slots</option>
+            </select>
+          </div>
+          <div>
+            <label for="m-end-time">End Time</label>
+            <input type="time" id="m-end-time" name="m-end-time" readonly />
+          </div>
+          <div class="full-width">
+            <label>Payment Mode</label>
+            <div class="radio-buttons">
+              <label for="m-cash">
+                <input
+                  type="radio"
+                  id="m-cash"
+                  name="m-payment-mode"
+                  value="cash"
+                  required
+                />
+                Cash
+              </label>
+              <label for="m-upi">
+                <input
+                  type="radio"
+                  id="m-upi"
+                  name="m-payment-mode"
+                  value="upi"
+                  required
+                />
+                UPI
+              </label>
+            </div>
+          </div>
+          <div>
+            <label for="m-court">Court</label>
+            <select id="m-court" name="m-court" required>
+              <option value="court1">Court 1</option>
+              <option value="court2">Court 2</option>
+              <option value="court3">Court 3</option>
+              <option value="court4">Court 4</option>
+              <option value="court5">Court 5</option>
+            </select>
+          </div>
+          <div class="full-width">
+            <button type="submit" class="save-button">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit/Add Membership Popup -->
+    <div id="edit-add-membership-popup" class="popup hidden">
+      <div class="popup-content">
+        <span class="close-popup" onclick="hidePopup('edit-add-membership-popup')">&times;</span>
+        <h2>Edit/Add Membership</h2>
+        <form onsubmit="return handleSubmit(event)">
+          <div>
+            <label for="barcode">Barcode</label>
+            <input type="text" id="barcode" name="barcode" required />
+          </div>
+          <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required />
+          </div>
+          <div>
+            <label for="mobile">Mobile Number</label>
+            <input type="tel" id="mobile" name="mobile" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div>
+            <label for="plan">Plan</label>
+            <select id="plan" name="plan" required>
+              <option value="basic">Basic</option>
+              <option value="standard">Standard</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
+          <div>
+            <label for="hours-remaining">Hours Remaining</label>
+            <input type="number" id="hours-remaining" name="hours-remaining" required />
+          </div>
+          <div>
+            <label for="expiry">Expiry</label>
+            <input type="date" id="expiry" name="expiry" max="2099-12-31" required readonly/>
+          </div>
+          <div class="full-width">
+            <label>Payment Mode</label>
+            <div class="radio-buttons">
+              <label for="cash">
+                <input type="radio" id="cash" name="payment-mode" value="cash" required />
+                Cash
+              </label>
+              <label for="upi">
+                <input type="radio" id="upi" name="payment-mode" value="upi" required />
+                UPI
+              </label>
+            </div>
+          </div>
+          <div class="full-width">
+            <button type="submit" class="save-button">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+
+
+
+
+    <!-- BARCODE INPUT -->
+    <input
+      type="text"
+      id="barcode-scanner"
+      style="position: absolute; left: -9999px"
+      oninput="handleBarcodeScan(event)"
+    />
+
+    <script>
+        document.getElementById('logo').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('active');
+  });
+  
+  document.getElementById('close-btn').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.remove('active');
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    var todaysMembership = document.getElementById('todays-membership');
+    var expiringMembership = document.getElementById('expiring-membership');
+    todaysMembership.classList.remove('hidden');
+    expiringMembership.classList.remove('hidden');
+  });
+
+  document.getElementById('summary-button').addEventListener('click', function() {
+    var sidebar = document.getElementById('sidebar');
+    var todaysBooking = document.getElementById('todays-booking');
+    var todaysMembership = document.getElementById('todays-membership');
+    var AdvanceBooking = document.getElementById('advance-booking');
+    var expiringMembership = document.getElementById('expiring-membership');
+    var scroll = document.getElementById('scroll');
+    
+    if(todaysBooking.classList.contains('tb-height')){
+        todaysBooking.classList.remove('tb-height');
+        scroll.classList.remove('sh');
+        todaysMembership.classList.remove('hidden');
+        expiringMembership.classList.remove('hidden');
+        AdvanceBooking.classList.remove('hidden');
+        sidebar.classList.remove('active');
+    }else{
+        todaysBooking.classList.add('tb-height');
+        scroll.classList.add('sh');
+        todaysMembership.classList.add('hidden');
+        expiringMembership.classList.add('hidden');
+        AdvanceBooking.classList.add('hidden');
+        sidebar.classList.remove('active');
+    }
+    
+    
+  });
+  
+
+// Function to handle barcode scanning
+function handleBarcodeScan(event) {
+    const barcodeInput = event.target;
+    let barcodeValue = barcodeInput.value.trim();
+
+    // Check if barcode length is greater than 10 digits
+    if (barcodeValue.length > 10) {
+        // Trim to the first 10 digits
+        barcodeValue = barcodeValue.slice(0, 10);
+    }
+
+    // Check if barcode length is exactly 10 digits
+    if (barcodeValue.length === 10) {
+        // Reflect scanned barcode value into visible input field
+        const visibleBarcodeInput = document.getElementById('barcode');
+        if (visibleBarcodeInput) {
+            visibleBarcodeInput.value = barcodeValue;
+        }
+
+        // Open membership booking popup
+        openMembershipBookingPopup(barcodeValue);
+
+        // Clear the barcode input
+        barcodeInput.value = '';
+    }
+}
+
+// Function to open membership booking popup
+function openMembershipBookingPopup(barcodeValue) {
+    console.log('Opening membership booking popup for barcode:', barcodeValue);
+    const popupId = 'membership-booking-popup';
+    const popup = document.getElementById(popupId);
+    
+    // Ensure the popup exists
+    if (popup) {
+        // Check if popup is already open
+        if (!popup.classList.contains('hidden')) {
+            console.log('Popup is already open. Scanned barcode:', barcodeValue);
+            return; // Exit function if popup is already open
+        }
+        
+        // Perform actions to show the popup
+        showPopup(popupId);
+        
+        // Use barcodeValue to process further actions if needed
+        console.log('Opening popup for barcode:', barcodeValue);
+
+        // Optionally, you can add further logic or actions here
+    }
+}
+
+// Function to show popup
+function showPopup(popupId) {
+    const popup = document.getElementById(popupId);
+    if (popup) {
+        popup.classList.remove('hidden');
+        
+        // Add event listener to close popup when clicking outside the content
+        popup.addEventListener('click', function(event) {
+            if (event.target === popup) {
+                hidePopup(popupId);
+            }
+        });
+    }
+}
+
+// Function to hide popup
+function hidePopup(popupId) {
+    const popup = document.getElementById(popupId);
+    if (popup) {
+        popup.classList.add('hidden');
+        
+        // Remove event listener to prevent memory leaks
+        popup.removeEventListener('click', function(event) {
+            if (event.target === popup) {
+                hidePopup(popupId);
+            }
+        });
+
+        // Return focus to the hidden barcode scanner input
+        const barcodeScanner = document.getElementById('barcode-scanner');
+        if (barcodeScanner) {
+            barcodeScanner.focus();
+        }
+    }
+}
+
+// Ensure focus on hidden barcode scanner input by default
+document.addEventListener('DOMContentLoaded', function() {
+    const barcodeScanner = document.getElementById('barcode-scanner');
+    if (barcodeScanner) {
+        barcodeScanner.addEventListener('input', handleBarcodeScan);
+        barcodeScanner.focus(); // Ensure focus on load
+    }
+});
+
+function redirectToManager() {
+    window.location.href = 'demo.html';
+  }
+    </script>
+  </body>
+</html>

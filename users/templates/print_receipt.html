@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Print Receipt</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>Print Receipt</h2>
+    <form method="post" action="{% url 'print_receipt' booking.id %}">
+        {% csrf_token %}
+        <p>Do you want to print the receipt?</p>
+        <button type="submit" name="yes" class="btn btn-primary">Yes</button>
+        <button type="submit" name="no" class="btn btn-secondary">No</button>
+    </form>
+</div>
+</body>
+</html>

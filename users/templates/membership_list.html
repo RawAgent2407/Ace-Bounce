@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Membership List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>Membership List</h2>
+    <a href="{% url 'add_membership' %}" class="btn btn-primary mb-3">Add New Membership</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Mobile Number</th>
+                <th>Email</th>
+                <th>Hours Remaining</th>
+                <th>Expiration Date</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for membership in memberships %}
+            <tr>
+                <td>{{ membership.member_name }}</td>
+                <td>{{ membership.mobile_number }}</td>
+                <td>{{ membership.email }}</td>
+                <td>{{ membership.hours_remaining }}</td>
+                <td>{{ membership.expiration_date }}</td>
+                <td>{{ membership.payment_method }}</td>
+                <td>{{ membership.status }}</td>
+                <td>
+                    <a href="{% url 'update_membership' membership.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'delete_membership' membership.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Membership Advanced Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .dropdown-menu {
+            width: 100%;
+        }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Add Membership Advanced Booking</h2>
+    <div class="form-group position-relative">
+        <label for="search_mobile">Search by Mobile Number</label>
+        <input type="text" class="form-control" id="search_mobile" name="search_mobile" autocomplete="off" > 
+        <div class="dropdown-menu" id="mobile_dropdown"></div>
+    </div>
+    <form id="advanced_M_bookingForm" method="post" action="{% url 'add_membership_advanced_booking' %}">
+        {% csrf_token %}
+        <input type="hidden" id="membership_id" name="membership_id" required>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="membership_advanced_name" name="name" required >
+        </div>
+        <div class="form-group">
+            <label for="membershipbooking_email">Email</label>
+            <input type="email" class="form-control" id="membershipbooking_email" name="membershipbooking_email" required>
+        </div>
+<!--        <div class="form-group">-->
+<!--            <label for="membershipbooking_mobile_number">Mobile Number</label>-->
+<!--            <input type="text" class="form-control" id="membershipbooking_mobile_number" name="membershipbooking_mobile_number" maxlength="10" required >-->
+<!--        </div>-->
+        <div class="form-group">
+            <label for="membership_advanced_date">Date</label>
+            <input type="date" class="form-control" id="membership_advanced_date" name="membership_advanced_date" required>
+        </div>
+        <div class="form-group">
+            <label for="membershipbooking_start_time">Start Time</label>
+            <input type="time" class="form-control" id="membershipbooking_start_time" name="membershipbooking_start_time" required>
+        </div>
+        <div class="form-group">
+            <label for="membershipbooking_slots">Slots</label>
+            <select class="form-control" id="membershipbooking_slots" name="membershipbooking_slots" required>
+                <option value="">Select Slot</option>
+                {% for slot in slots %}
+                <option value="{{ slot.id }}" data-hours="{{ slot.hours }}">{{ slot }} - {{ slot.amount }} ₹ - {{ slot.hours }} hours</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="membershipbooking_end_time">End Time</label>
+            <input type="time" class="form-control" id="membershipbooking_end_time" name="membershipbooking_end_time" required>
+        </div>
+<!--        <div class="form-group">-->
+<!--            <label for="payment_method">Payment Method</label>-->
+<!--            <select class="form-control" id="payment_method" name="payment_method" required>-->
+<!--                <option value="Cash">Cash</option>-->
+<!--                <option value="UPI">UPI</option>-->
+<!--            </select>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="discount">Discount</label>-->
+<!--            <input type="number" class="form-control" id="discount" name="discount" required>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="court">Court</label>-->
+<!--            <select class="form-control" id="court" name="court" required>-->
+<!--                {% for court in courts %}-->
+<!--                    {% if not court.booked %}-->
+<!--                <option value="{{ court.court_number }}">Court {{ court.court_number }}</option>-->
+<!--                    {% endif %}-->
+<!--                {% endfor %}-->
+<!--            </select>-->
+<!--        </div>-->
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#search_mobile').on('input', function() {
+        const mobileNumber = $(this).val();
+        if (mobileNumber.length > 0) {
+            $.ajax({
+                url: '{% url "search_membership" %}',
+                method: 'GET',
+                data: { membershipbooking_mobile_number: mobileNumber },
+                success: function(data) {
+                    $('#mobile_dropdown').empty();
+                    if (data.status === 'success') {
+                        data.memberships.forEach(function(membership) {
+                            $('#mobile_dropdown').append('<a class="dropdown-item" href="#" data-id="' + membership.id + '" data-membership_advanced_name="' + membership.name + '" data-membershipbooking_email="' + membership.email + '" data-mobile="' + membership.mobile_number + '">' + membership.mobile_number + ' - ' + membership.name + '</a>');
+                        });
+                        $('#mobile_dropdown').show();
+                    } else {
+                        $('#mobile_dropdown').hide();
+                    }
+                },
+                error: function() {
+                    alert('Error fetching membership.');
+                }
+            });
+        } else {
+            $('#mobile_dropdown').hide();
+        }
+    });
+
+    $(document).on('click', '.dropdown-item', function() {
+        const membershipId = $(this).data('id');
+        const name = $(this).data('membership_advanced_name');
+        const email = $(this).data('membershipbooking_email');
+        const mobile = $(this).data('mobile');
+
+        $('#membership_id').val(membershipId);
+        $('#membership_advanced_name').val(name);
+        $('#membershipbooking_email').val(email);
+        $('#membershipbooking_mobile_number').val(mobile);
+
+        $('#mobile_dropdown').hide();
+    });
+
+    $('#membershipbooking_start_time, #membershipbooking_slots').on('change', function() {
+        const startTime = $('#membershipbooking_start_time').val();
+        const selectedSlot = $('#membershipbooking_slots').find('option:selected');
+        const slotHours = parseInt(selectedSlot.data('hours'), 10);
+
+        if (startTime && !isNaN(slotHours)) {
+            const [hours, minutes] = startTime.split(':');
+            const endDate = new Date(0, 0, 0, parseInt(hours) + slotHours, parseInt(minutes));
+            const endHours = endDate.getHours().toString().padStart(2, '0');
+            const endMinutes = endDate.getMinutes().toString().padStart(2, '0');
+            $('#membershipbooking_end_time').val(`${endHours}:${endMinutes}`);
+
+        }
+
+
+    });
+
+    // i want to set start time = current time
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    $('#membershipbooking_start_time').val(`${hours}:${minutes}`);
+
+    const date = now.toISOString().split('T')[0];
+    $('#membership_advanced_date').val(date);
+    
+
+    // Hide dropdown if click outside
+    $(document).click(function(e) {
+        if (!$(e.target).closest('#search_mobile').length && !$(e.target).closest('#mobile_dropdown').length) {
+            $('#mobile_dropdown').hide();
+        }
+    });
+});
+</script>
+</body>
+</html>

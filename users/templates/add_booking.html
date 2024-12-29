@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Booking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Add Booking</h2>
+    <form id="add_booking_bookingForm" method="post" action="{% url 'add_booking' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="add_booking_mobile_number">Mobile Number</label>
+            <input type="text" class="form-control" id="add_booking_mobile_number" name="add_booking_mobile_number" maxlength="10" required>
+        </div>
+        <div class="form-group">
+            <label for="add_booking_name">Name</label>
+            <input type="text" class="form-control" id="add_booking_name" name="add_booking_name" required>
+        </div>
+        <div class="form-group">
+            <label for="add_booking_email">Email</label>
+            <input type="email" class="form-control" id="add_booking_email" name="add_booking_email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="add_booking_date">Date</label>
+            <input type="date" class="form-control" id="add_booking_date" name="add_booking_date" required>
+        </div>
+        <div class="form-group">
+            <label for="add_booking_start_time">Start Time</label>
+            <input type="time" class="form-control" id="add_booking_start_time" name="add_booking_start_time" required>
+        </div>
+        <div class="form-group">
+            <label for="add_booking_slots">Slots</label>
+            <select class="form-control" id="add_booking_slots" name="add_booking_slots" required>
+                <option value="">Select Slot</option>   
+                {% for slot in slots %}
+                <option value="{{ slot.id }}" data-hours="{{ slot.hours }}">{{ slot }} - {{ slot.amount }} ₹ - {{ slot.hours }} hours</option>          
+                {% endfor %}  
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="add_booking_end_time">End Time</label>
+            <input type="time" class="form-control" id="add_booking_end_time" name="add_booking_end_time" required readonly>
+        </div>
+<!--        <div class="form-group">-->
+<!--            <label for="inventory_ball">Balls</label>-->
+<!--            <input type="number" class="form-control" id="inventory_ball" name="inventory_ball" required>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="inventory_racket">Rackets</label>-->
+<!--            <input type="number" class="form-control" id="inventory_racket" name="inventory_racket" required>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="add_booking_payment_method">Payment Method</label>-->
+<!--            <select class="form-control" id="add_booking_payment_method" name="add_booking_payment_method" required>-->
+<!--                <option value="Cash">Cash</option>-->
+<!--                <option value="UPI">UPI</option>-->
+<!--            </select>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="add_booking_discount">Discount</label>-->
+<!--            <input type="number" class="form-control" id="add_booking_discount" name="add_booking_discount" required>-->
+<!--        </div>-->
+        <div class="form-group">
+            <label for="inventory_ball">Balls</label>
+            <input type="number" class="form-control" id="inventory_ball" name="inventory_ball" required>
+        </div>
+        <div class="form-group">
+            <label for="inventory_racket">Rackets</label>
+            <input type="number" class="form-control" id="inventory_racket" name="inventory_racket" required>
+        </div>
+        <div class="form-group">
+            <label for="add_booking_court">Court</label>
+            <select class="form-control" id="add_booking_court" name="add_booking_court" required>
+                {% for court in courts %}
+                    {% if not court.booked %}
+                <option value="{{ court.court_number }}">Court {{ court.court_number }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <input type="hidden" id="manager_id" name="manager_id">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Function to set the current time as the start time
+    function setCurrentTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        $('#add_booking_start_time').val(`${hours}:${minutes}`);
+        $('#add_booking_date').val(`${year}-${month}-${day}`);
+    }
+
+    // Function to update end time based on start time and slots
+    function updateEndTime() {
+        const startTime = $('#add_booking_start_time').val();
+        const selectedSlot = $('#add_booking_slots').find('option:selected');
+        const slotHours = parseInt(selectedSlot.data('hours'), 10);
+
+        if (startTime && !isNaN(slotHours)) {
+            const startTimeDate = new Date(`1970-01-01T${startTime}:00`);
+            const endTimeDate = new Date(startTimeDate.getTime() + slotHours * 60 * 60 * 1000);
+            const endTime = endTimeDate.toTimeString().split(' ')[0].substring(0, 5);
+            $('#add_booking_end_time').val(endTime);
+        } else {
+            $('#add_booking_end_time').val('');
+        }
+    }
+
+    // Fetch and set manager ID
+    $.ajax({
+        url: '/manager/get_manager_id/',
+        method: 'GET',
+        success: function(data) {
+            if (data.manager_id) {
+                $('#manager_id').val(data.manager_id);
+            } else {
+                alert('Manager ID not found.');
+            }
+        },
+        error: function() {
+            alert('Error fetching manager ID.');
+        }
+    });
+
+    // Set current time on page load
+    setCurrentTime();
+
+    // Update end time when start time or slot changes
+    $('#add_booking_start_time, #add_booking_slots').on('change', updateEndTime);
+
+    // Handle form submission with AJAX
+    $('#add_booking_bookingForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+
+        $.ajax({
+            url: '/manager/add_booking/',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status === 'occupied') {
+                    alert('This court is already occupied for the selected time.');
+                } else {
+                    window.location.href = '/manager/view_bookings/';
+                }
+            },
+            error: function() {
+                alert('Error creating booking.');
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
